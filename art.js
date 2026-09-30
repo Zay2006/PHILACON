@@ -26,28 +26,36 @@
 // Corners of the bat, from the left wing tip, going clockwise.
 // Each pair is a fraction of the frame: x left to right, y top to bottom.
 const BAT = [
-  [0.02, 0.50], // left wing tip
-  [0.16, 0.40],
-  [0.28, 0.34],
-  [0.34, 0.44], // notch beside the left ear
-  [0.40, 0.08], // left ear tip
+  [0.05, 0.46], // left wing tip
+  [0.12, 0.40],
+  [0.20, 0.37],
+  [0.28, 0.40],
+  [0.33, 0.48], // notch beside the left ear
+  [0.37, 0.34],
+  [0.42, 0.12], // left ear tip
   [0.47, 0.36],
   [0.50, 0.42], // between the ears
   [0.53, 0.36],
-  [0.60, 0.08], // right ear tip
-  [0.66, 0.44],
-  [0.72, 0.34],
-  [0.84, 0.40],
-  [0.98, 0.50], // right wing tip
-  [0.86, 0.62],
-  [0.74, 0.54],
-  [0.66, 0.74],
-  [0.58, 0.60],
-  [0.50, 0.86], // bottom tail
-  [0.42, 0.60],
-  [0.34, 0.74],
-  [0.26, 0.54],
-  [0.14, 0.62],
+  [0.58, 0.12], // right ear tip
+  [0.63, 0.34],
+  [0.67, 0.48], // notch beside the right ear
+  [0.72, 0.40],
+  [0.80, 0.37],
+  [0.88, 0.40],
+  [0.95, 0.46], // right wing tip
+  [0.89, 0.54],
+  [0.82, 0.58],
+  [0.75, 0.52],
+  [0.69, 0.62], // right scallop
+  [0.63, 0.54],
+  [0.57, 0.66],
+  [0.50, 0.78], // bottom tail
+  [0.43, 0.66],
+  [0.37, 0.54],
+  [0.31, 0.62], // left scallop
+  [0.25, 0.52],
+  [0.18, 0.58],
+  [0.11, 0.54],
 ];
 
 function drawArt(g) {
@@ -55,11 +63,14 @@ function drawArt(g) {
 
   g.noStroke();
   g.fill(255, 204, 0);
+  g.ellipse(g.width / 2, g.height / 2, g.width * 0.96, g.height * 0.9);
+
+  g.fill(0);
   g.beginShape();
   for (const [u, v] of BAT) g.vertex(u * g.width, v * g.height);
   g.endShape(CLOSE);
 
   // A point on every corner of the bat
   g.fill(255, 0, 255);
-  for (const [u, v] of BAT) g.circle(u * g.width, v * g.height, 22);
+  for (const [u, v] of BAT) g.circle(u * g.width, v * g.height, 18);
 }
