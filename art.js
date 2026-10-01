@@ -23,27 +23,56 @@
 // Outlines: g.noFill(); g.stroke(255); g.strokeWeight(8);
 // Full list: https://p5js.org/reference/
 
-// Corners of the Omnitrix hourglass, from the top-left, clockwise.
-// Each pair is a fraction of the frame: x left to right, y top to bottom.
-const HOURGLASS = [
-  [0.35, 0.23], // top left
-  [0.65, 0.23], // top right
-  [0.53, 0.50], // right side of the waist
-  [0.65, 0.77], // bottom right
-  [0.35, 0.77], // bottom left
-  [0.47, 0.50], // left side of the waist
-];
-
 function drawArt(g) {
   g.background(0);
+
+  const cx = g.width / 2;
+  const cy = g.height / 2;
+  const r = Math.min(g.width, g.height) * 0.4;
+  const spot = (deg) => {
+    const a = (deg * Math.PI) / 180;
+    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+  };
+  const topJoin = spot(285);
+  const sideJoin = spot(208);
+  const tip = [cx - r * 1.55, cy - r * 1.28];
+
   g.noStroke();
+  g.fill(255, 176, 0);
+  g.circle(cx, cy, r * 2);
+  g.triangle(tip[0], tip[1], topJoin[0], topJoin[1], sideJoin[0], sideJoin[1]);
 
-  const face = Math.min(g.width, g.height) * 0.88;
-  g.fill(170, 255, 0);
-  g.circle(g.width / 2, g.height / 2, face);
-
-  g.fill(0);
+  g.fill(255);
   g.beginShape();
-  for (const [u, v] of HOURGLASS) g.vertex(u * g.width, v * g.height);
+  for (const [x, y] of [[-0.62, -0.26], [-0.28, -0.16], [-0.14, -0.02], [-0.24, 0.12], [-0.46, 0.16], [-0.62, 0.02]]) {
+    g.vertex(cx + x * r, cy + y * r);
+  }
   g.endShape(CLOSE);
+  g.beginShape();
+  for (const [x, y] of [[0.62, -0.26], [0.28, -0.16], [0.14, -0.02], [0.24, 0.12], [0.46, 0.16], [0.62, 0.02]]) {
+    g.vertex(cx + x * r, cy + y * r);
+  }
+  g.endShape(CLOSE);
+  g.ellipse(cx, cy + r * 0.08, r * 0.16, r * 0.07);
+
+  g.noFill();
+  g.stroke(255);
+  g.strokeWeight(r * 0.025);
+  g.strokeJoin(ROUND);
+  g.beginShape();
+  for (const [x, y] of [[-0.50, 0.34], [-0.34, 0.20], [-0.18, 0.46], [0, 0.18], [0.18, 0.46], [0.34, 0.20], [0.50, 0.34]]) {
+    g.vertex(cx + x * r, cy + y * r);
+  }
+  g.endShape();
+  g.line(cx - r * 0.40, cy + r * 0.16, cx - r * 0.28, cy + r * 0.32);
+  g.line(cx + r * 0.40, cy + r * 0.16, cx + r * 0.28, cy + r * 0.32);
+
+  g.stroke(0);
+  g.strokeWeight(r * 0.055);
+  g.strokeCap(ROUND);
+  g.noFill();
+  g.arc(cx, cy, r * 2, r * 2, (285 * Math.PI) / 180, (208 * Math.PI) / 180 + Math.PI * 2);
+  g.line(topJoin[0], topJoin[1], tip[0], tip[1]);
+  g.line(tip[0], tip[1], sideJoin[0], sideJoin[1]);
+  g.line(sideJoin[0], sideJoin[1], sideJoin[0] + r * 0.34, sideJoin[1] + r * 0.28);
 }
