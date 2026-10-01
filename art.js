@@ -23,72 +23,103 @@
 // Outlines: g.noFill(); g.stroke(255); g.strokeWeight(8);
 // Full list: https://p5js.org/reference/
 
+// Sharp letters for the wordmark. Each letter is a list of shapes.
+// Points are in a 0–100 box: x to the right, y down. Negative x sticks out to the left.
+const WORD = [
+  [118, [
+    [[-78, -6], [96, 2], [104, 24], [34, 28], [6, 4]],
+    [[-22, 42], [78, 38], [76, 56], [-4, 62]],
+    [[10, 72], [98, 66], [88, 100], [6, 98]],
+    [[54, 8], [84, 6], [76, 100], [48, 98]],
+  ]],
+  [108, [
+    [[0, 8], [30, 0], [48, 64], [66, 0], [100, 10], [52, 100]],
+  ]],
+  [108, [
+    [[6, 100], [34, 6], [52, 0], [36, 100]],
+    [[46, 0], [64, 8], [100, 100], [72, 100]],
+    [[30, 54], [76, 48], [72, 66], [32, 70]],
+  ]],
+  [108, [
+    [[4, 4], [28, 0], [32, 100], [8, 100]],
+    [[68, 0], [94, 6], [88, 100], [62, 98]],
+    [[20, 6], [40, 2], [82, 98], [60, 100]],
+  ]],
+  [112, [
+    [[78, 6], [28, 0], [6, 22], [4, 78], [28, 100], [82, 94], [92, 74], [46, 70], [48, 52], [100, 46], [96, 20]],
+  ]],
+  [108, [
+    [[-16, 4], [92, 6], [98, 26], [34, 30], [8, 10]],
+    [[-4, 44], [74, 40], [72, 56], [6, 60]],
+    [[10, 72], [94, 68], [84, 100], [8, 98]],
+    [[50, 12], [80, 8], [72, 100], [44, 98]],
+  ]],
+  [86, [
+    [[16, 0], [42, 4], [34, 70], [92, 74], [82, 100], [6, 96]],
+  ]],
+  [48, [
+    [[8, 0], [40, 6], [30, 100], [0, 92]],
+  ]],
+  [108, [
+    [
+      [[50, 0], [92, 16], [100, 50], [88, 86], [50, 100], [8, 84], [0, 48], [14, 14]],
+      [[50, 22], [74, 32], [78, 52], [70, 74], [50, 80], [28, 70], [24, 48], [34, 28]],
+    ],
+  ]],
+  [120, [
+    [[4, 4], [28, 0], [32, 100], [8, 100]],
+    [[18, 8], [40, 2], [78, 96], [56, 100]],
+    [[58, 6], [168, -16], [184, -2], [86, 100], [62, 98]],
+  ]],
+];
+
 function drawArt(g) {
   g.background(0);
 
-  const cx = g.width / 2;
-  const cy = g.height * 0.56;
-  const r = Math.min(g.width, g.height) * 0.34;
-  const spot = (deg) => {
-    const a = (deg * Math.PI) / 180;
-    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
-  };
-  const sideJoin = spot(206);
-  const crown = spot(308);
-  const tip = [cx - r * 1.62, cy - r * 1.02];
+  const gap = 8;
+  const padL = 100;
+  const padR = 120;
+  const units = WORD.reduce((sum, [w]) => sum + w, 0) + gap * (WORD.length - 1) + padL + padR;
+  const scale = (g.width * 0.94) / units;
+  const em = 150 * scale;
+  const shear = 0.1;
+  const top = (g.height - em) / 2;
+  let x = (g.width - units * scale) / 2 + padL * scale;
 
-  // One outline around the circle and the point, so the rim does not cut through the spike.
-  g.fill(255, 176, 0);
-  g.stroke(0, 0, 0);
-  g.strokeWeight(r * 0.065);
-  g.strokeCap(ROUND);
-  g.strokeJoin(ROUND);
-  g.beginShape();
-  for (let deg = 308; deg <= 206 + 360; deg += 3) {
-    const p = spot(deg % 360);
-    g.vertex(p[0], p[1]);
+  for (const [w, shapes] of WORD) {
+    const width = w * scale;
+    for (const shape of shapes) {
+      const contours = typeof shape[0][0] === 'number' ? [shape] : shape;
+      const mapped = contours.map((contour) => contour.map(([px, py]) => [
+        x + (px / 100) * width + ((100 - py) / 100) * em * shear,
+        top + (py / 100) * em,
+      ]));
+      paintGlyph(g, mapped, top - em * 0.25, top + em * 1.05);
+    }
+    x += width + gap * scale;
   }
-  g.vertex(tip[0], tip[1]);
-  g.quadraticVertex(cx - r * 0.1, cy - r * 1.05, crown[0], crown[1]);
-  g.endShape(CLOSE);
-
-  angryEye(g, cx - r * 0.34, cy - r * 0.04, r, -1);
-  angryEye(g, cx + r * 0.34, cy - r * 0.04, r, 1);
-
-  g.noStroke();
-  g.fill(255);
-  g.ellipse(cx, cy + r * 0.12, r * 0.15, r * 0.07);
-
-  g.noFill();
-  g.stroke(255);
-  g.strokeWeight(r * 0.028);
-  g.strokeJoin(ROUND);
-  g.beginShape();
-  for (const [x, y] of [[-0.48, 0.58], [-0.32, 0.42], [-0.16, 0.70], [0, 0.38], [0.16, 0.70], [0.32, 0.42], [0.48, 0.58]]) {
-    g.vertex(cx + x * r, cy + y * r);
-  }
-  g.endShape();
-  g.strokeWeight(r * 0.02);
-  g.line(cx - r * 0.46, cy + r * 0.16, cx - r * 0.32, cy + r * 0.30);
-  g.line(cx + r * 0.46, cy + r * 0.16, cx + r * 0.32, cy + r * 0.30);
-
-  g.stroke(0, 0, 0);
-  g.strokeWeight(r * 0.045);
-  g.line(sideJoin[0], sideJoin[1], sideJoin[0] + r * 0.38, sideJoin[1] + r * 0.16);
 }
 
-// dir is -1 for the left eye and 1 for the right, so the outer corner sits higher.
-function angryEye(g, x, y, r, dir) {
-  g.push();
-  g.translate(x, y);
-  g.scale(dir, 1);
-  g.noStroke();
-  g.fill(255);
-  g.beginShape();
-  g.vertex(0.30 * r, -0.10 * r);
-  g.vertex(-0.02 * r, 0.00 * r);
-  g.vertex(-0.10 * r, 0.10 * r);
-  g.bezierVertex(0.00 * r, 0.20 * r, 0.22 * r, 0.16 * r, 0.32 * r, 0.02 * r);
-  g.endShape(CLOSE);
-  g.pop();
+// Yellow at the top of the letters, red at the bottom.
+function paintGlyph(g, contours, top, bottom) {
+  const ctx = g.drawingContext;
+  ctx.save();
+  ctx.beginPath();
+  for (const pts of contours) {
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+  }
+  const grad = ctx.createLinearGradient(0, top, 0, bottom);
+  grad.addColorStop(0, '#ffe84a');
+  grad.addColorStop(0.4, '#ff9a00');
+  grad.addColorStop(0.72, '#ff4a00');
+  grad.addColorStop(1, '#d40000');
+  ctx.fillStyle = grad;
+  ctx.fill('evenodd');
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(90, 16, 0, 0.55)';
+  ctx.lineJoin = 'miter';
+  ctx.stroke();
+  ctx.restore();
 }
