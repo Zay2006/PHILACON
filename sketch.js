@@ -10,16 +10,33 @@ let dragging = -1;  // Index of the corner being dragged, or -1 for none
 let moving = false; // true while you drag inside the surface to move all four corners together
 let lastMouse;      // Where the mouse was at the last drag event, so each event moves the surface only its own distance
 let editing = true; // true shows the handles; press E to hide them for the projector
+let cornersPlaced = false; // false until you drag, so fullscreen can still fit the laptop screen
+
+// 16:10 is the usual 16-inch laptop panel (about 13.6 by 8.5 inches).
+const LAPTOP_ASPECT = 16 / 10;
+
+// A 16:10 rectangle that fills the window, with a small margin so the handles stay on screen.
+function laptopCorners() {
+  let w = width * 0.96;
+  let h = w / LAPTOP_ASPECT;
+  if (h > height * 0.96) {
+    h = height * 0.96;
+    w = h * LAPTOP_ASPECT;
+  }
+  const x = (width - w) / 2;
+  const y = (height - h) / 2;
+  return [
+    createVector(x, y),
+    createVector(x + w, y),
+    createVector(x + w, y + h),
+    createVector(x, y + h),
+  ];
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
-  art = createGraphics(800, 600);
-  corners = [
-    createVector(width * 0.3, height * 0.3),
-    createVector(width * 0.7, height * 0.3),
-    createVector(width * 0.7, height * 0.7),
-    createVector(width * 0.3, height * 0.7),
-  ];
+  art = createGraphics(1600, 1000); // 16:10, matching a 16-inch laptop screen
+  corners = laptopCorners();
   if (typeof setupArt === 'function') setupArt(art); // setupArt() is optional. Your art file only needs drawArt()
 }
 
@@ -79,6 +96,7 @@ function mousePressed() {
 }
 
 function mouseDragged() {
+  if (dragging >= 0 || moving) cornersPlaced = true;
   if (dragging >= 0) corners[dragging].set(mouseX, mouseY);
   if (moving) {
     const step = createVector(mouseX, mouseY).sub(lastMouse); // How far the mouse moved since the last drag event
@@ -106,6 +124,7 @@ function insideQuad(x, y, c) {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  if (!cornersPlaced) corners = laptopCorners();
 }
 
 function keyPressed() {
