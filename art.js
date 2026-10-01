@@ -27,52 +27,68 @@ function drawArt(g) {
   g.background(0);
 
   const cx = g.width / 2;
-  const cy = g.height / 2;
-  const r = Math.min(g.width, g.height) * 0.4;
+  const cy = g.height * 0.56;
+  const r = Math.min(g.width, g.height) * 0.34;
   const spot = (deg) => {
     const a = (deg * Math.PI) / 180;
     return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
   };
-  const topJoin = spot(285);
-  const sideJoin = spot(208);
-  const tip = [cx - r * 1.55, cy - r * 1.28];
+  const sideJoin = spot(206);
+  const crown = spot(308);
+  const tip = [cx - r * 1.62, cy - r * 1.02];
+
+  // One outline around the circle and the point, so the rim does not cut through the spike.
+  g.fill(255, 176, 0);
+  g.stroke(0, 0, 0);
+  g.strokeWeight(r * 0.065);
+  g.strokeCap(ROUND);
+  g.strokeJoin(ROUND);
+  g.beginShape();
+  for (let deg = 308; deg <= 206 + 360; deg += 3) {
+    const p = spot(deg % 360);
+    g.vertex(p[0], p[1]);
+  }
+  g.vertex(tip[0], tip[1]);
+  g.quadraticVertex(cx - r * 0.1, cy - r * 1.05, crown[0], crown[1]);
+  g.endShape(CLOSE);
+
+  angryEye(g, cx - r * 0.34, cy - r * 0.04, r, -1);
+  angryEye(g, cx + r * 0.34, cy - r * 0.04, r, 1);
 
   g.noStroke();
-  g.fill(255, 176, 0);
-  g.circle(cx, cy, r * 2);
-  g.triangle(tip[0], tip[1], topJoin[0], topJoin[1], sideJoin[0], sideJoin[1]);
-
   g.fill(255);
-  g.beginShape();
-  for (const [x, y] of [[-0.62, -0.26], [-0.28, -0.16], [-0.14, -0.02], [-0.24, 0.12], [-0.46, 0.16], [-0.62, 0.02]]) {
-    g.vertex(cx + x * r, cy + y * r);
-  }
-  g.endShape(CLOSE);
-  g.beginShape();
-  for (const [x, y] of [[0.62, -0.26], [0.28, -0.16], [0.14, -0.02], [0.24, 0.12], [0.46, 0.16], [0.62, 0.02]]) {
-    g.vertex(cx + x * r, cy + y * r);
-  }
-  g.endShape(CLOSE);
-  g.ellipse(cx, cy + r * 0.08, r * 0.16, r * 0.07);
+  g.ellipse(cx, cy + r * 0.12, r * 0.15, r * 0.07);
 
   g.noFill();
   g.stroke(255);
-  g.strokeWeight(r * 0.025);
+  g.strokeWeight(r * 0.028);
   g.strokeJoin(ROUND);
   g.beginShape();
-  for (const [x, y] of [[-0.50, 0.34], [-0.34, 0.20], [-0.18, 0.46], [0, 0.18], [0.18, 0.46], [0.34, 0.20], [0.50, 0.34]]) {
+  for (const [x, y] of [[-0.48, 0.58], [-0.32, 0.42], [-0.16, 0.70], [0, 0.38], [0.16, 0.70], [0.32, 0.42], [0.48, 0.58]]) {
     g.vertex(cx + x * r, cy + y * r);
   }
   g.endShape();
-  g.line(cx - r * 0.40, cy + r * 0.16, cx - r * 0.28, cy + r * 0.32);
-  g.line(cx + r * 0.40, cy + r * 0.16, cx + r * 0.28, cy + r * 0.32);
+  g.strokeWeight(r * 0.02);
+  g.line(cx - r * 0.46, cy + r * 0.16, cx - r * 0.32, cy + r * 0.30);
+  g.line(cx + r * 0.46, cy + r * 0.16, cx + r * 0.32, cy + r * 0.30);
 
-  g.stroke(0);
-  g.strokeWeight(r * 0.055);
-  g.strokeCap(ROUND);
-  g.noFill();
-  g.arc(cx, cy, r * 2, r * 2, (285 * Math.PI) / 180, (208 * Math.PI) / 180 + Math.PI * 2);
-  g.line(topJoin[0], topJoin[1], tip[0], tip[1]);
-  g.line(tip[0], tip[1], sideJoin[0], sideJoin[1]);
-  g.line(sideJoin[0], sideJoin[1], sideJoin[0] + r * 0.34, sideJoin[1] + r * 0.28);
+  g.stroke(0, 0, 0);
+  g.strokeWeight(r * 0.045);
+  g.line(sideJoin[0], sideJoin[1], sideJoin[0] + r * 0.38, sideJoin[1] + r * 0.16);
+}
+
+// dir is -1 for the left eye and 1 for the right, so the outer corner sits higher.
+function angryEye(g, x, y, r, dir) {
+  g.push();
+  g.translate(x, y);
+  g.scale(dir, 1);
+  g.noStroke();
+  g.fill(255);
+  g.beginShape();
+  g.vertex(0.30 * r, -0.10 * r);
+  g.vertex(-0.02 * r, 0.00 * r);
+  g.vertex(-0.10 * r, 0.10 * r);
+  g.bezierVertex(0.00 * r, 0.20 * r, 0.22 * r, 0.16 * r, 0.32 * r, 0.02 * r);
+  g.endShape(CLOSE);
+  g.pop();
 }
